@@ -1,0 +1,19 @@
+services:
+  mealie:
+    # tag: latest (pinned 2026-10-28)
+    image: ghcr.io/mealie-recipes/mealie:latest@sha256:78eb28b8776d0bad40c5e605c72b3f4f5976793e491558c7dcbdfc04c835d4bc
+    container_name: ${DOCKER_PREFIX:-}mealie
+    restart: unless-stopped
+    ports:
+      - "${MEALIE_HTTP_PORT:-9925}:9000"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-UTC}
+      # Derived from TLS_MODE by install.sh; a bare localhost value keeps Mealie happy
+      # when you're only using it over the LAN.
+      - BASE_URL=${MEALIE_BASE_URL:-http://localhost:9925}
+      - MEALIE_SECRET=${MEALIE_SECRET:?set in .env}
+      - ALLOW_SIGNUP=false
+    volumes:
+      - ${DATA_DIR}/mealie:/app/data

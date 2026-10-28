@@ -1,0 +1,14 @@
+services:
+  vaultwarden:
+    # tag: latest (pinned 2026-10-28)
+    image: vaultwarden/server:latest@sha256:efb3cde962015fcc036b2ea625242248611943b27212ebf4392841fb30fad055
+    container_name: ${DOCKER_PREFIX:-}vaultwarden
+    restart: unless-stopped
+    ports:
+      - "${VAULTWARDEN_HTTP_PORT:-8000}:80"
+    environment:
+      # Derived from TLS_MODE by install.sh (Vaultwarden requires a full URL).
+      - DOMAIN=${VAULTWARDEN_DOMAIN:-https://vaultwarden.home.arpa}
+      - ADMIN_TOKEN=${VAULTWARDEN_ADMIN_TOKEN:-}
+    volumes:
+      - ${DATA_DIR}/vaultwarden:/data

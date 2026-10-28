@@ -1,0 +1,21 @@
+services:
+  jellyfin:
+    # tag: latest (pinned 2026-10-28)
+    image: lscr.io/linuxserver/jellyfin:latest@sha256:3894d9eae88418d3cf9ac6349392d2c4dad818365a59565d19edc38098897044
+    container_name: ${DOCKER_PREFIX:-}jellyfin
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-UTC}
+    ports:
+      - "${JELLYFIN_HTTP_PORT:-8096}:8096"
+    volumes:
+      - ${DATA_DIR}/jellyfin/config:/config
+      - ${DATA_DIR}/media/downloads:/media
+    # Uncomment for NVIDIA hardware transcode:
+    # devices:
+    #   - /dev/nvidiactl
+    #   - /dev/nvidia0
+    # group_add:
+    #   - "44"   # video group

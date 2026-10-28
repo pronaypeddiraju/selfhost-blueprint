@@ -1,0 +1,16 @@
+services:
+  homepage:
+    # tag: v1.2.0 (pinned 2026-10-28)
+    image: ghcr.io/gethomepage/homepage:v1.2.0@sha256:5e6bcbb595c4e857540577135e0f8b3ffc2e97c23d6e0ddc7df183de5bfdd442
+    container_name: ${DOCKER_PREFIX:-}homepage
+    restart: unless-stopped
+    ports:
+      - "${HOMEPAGE_HTTP_PORT:-3002}:3000"
+    volumes:
+      - ${DATA_DIR}/homepage/config:/app/config
+      # Read-only docker socket: lets Homepage show container status widgets.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - TZ=${TZ:-UTC}
+      # Set to the hostname(s) you reach this UI on; '*' is fine on a trusted LAN.
+      - HOMEPAGE_ALLOWED_HOSTS=${HOMEPAGE_ALLOWED_HOSTS:-*}

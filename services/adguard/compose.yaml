@@ -1,0 +1,12 @@
+services:
+  adguard:
+    # tag: latest (pinned 2026-10-28)
+    image: adguard/adguardhome:latest@sha256:aba9e3bf0613be3ba3755e1fc311b126e2c24bec25e18b6483894a88283074f0
+    container_name: ${DOCKER_PREFIX:-}adguard
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ${DATA_DIR}/adguard/work:/opt/adguardhome/work
+      - ${DATA_DIR}/adguard/conf:/opt/adguardhome/conf
+    environment:
+      TZ: ${TZ:-UTC}

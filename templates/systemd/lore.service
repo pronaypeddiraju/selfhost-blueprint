@@ -1,0 +1,16 @@
+[Unit]
+Description=Epic Lore Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__SERVICE_USER__
+Group=__SERVICE_USER__
+ExecStart=__LORE_BINARY__ --config __DATA_DIR__/config
+Restart=always
+RestartSec=5
+WorkingDirectory=__DATA_DIR__
+
+[Install]
+WantedBy=multi-user.target

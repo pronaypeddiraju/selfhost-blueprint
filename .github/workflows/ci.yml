@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  security-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Runs the same secret/identifier scan as the local ./check-secrets.sh
+      - name: Secret & identifier scan
+        run: bash -e check-secrets.sh
+        shell: bash
+
+      - name: ShellCheck (lint all shell scripts)
+        uses: ludeeus/action-shellcheck@master
+        with:
+          # Fail on real bugs only. Warning-level SC2034 unused-vars are
+          # intentional here (config-template placeholders / color palette).
+          severity: error
+
+      # Validate every compose file fully parses/interpolates using dummy values
+      # for all placeholders (so required-var checks pass without real secrets).
+      - name: Compose files parse
+        run: |
+          set -euo pipefail
+          printf '%s\n' \
+            'DATA_DIR=/tmp' 'HOST_IP=192.168.1.99' 'TZ=UTC' 'DOCKER_PREFIX=' \
+            'APP_DOMAIN=example.com' \
+            'ADGUARD_HTTP_PORT=3000' \
+            'QBIT_HTTP_PORT=8080' 'RADARR_PORT=7878' 'SONARR_PORT=8989' \
+            'PROWLARR_PORT=9696' 'BAZARR_PORT=6767' 'JELLYSEERR_PORT=5055' \
+            'VPN_PROVIDER=dummy' 'VPN_PRIVATE_KEY=dummy' 'VPN_ADDRESS=dummy' \
+            'VPN_PUBLIC_KEY=dummy' 'VPN_PORT_FORWARDED=6881' \
+            'IMMICH_DB_PASSWORD=dummy' 'JELLYFIN_HTTP_PORT=8096' \
+            'CLOUDFLARE_API_TOKEN=dummy' 'TLS_MODE=internal' \
+            'VAULTWARDEN_HTTP_PORT=8000' \
+            'HOMEPAGE_HTTP_PORT=3002' 'SCRUTINY_HTTP_PORT=8081' \
+            'MEALIE_HTTP_PORT=9925' 'MEALIE_SECRET=dummy' \
+            'UPTIMEKUMA_HTTP_PORT=3001' \
+            'SILVERBULLET_USER=dummyuser:dummypass' \
+            'FILEBROWSER_HTTP_PORT=8080' > /tmp/ci.env
+          while IFS= read -r f; do
+            echo "== $f"
+            docker compose --env-file /tmp/ci.env -f "$f" config -q || \
+              { echo "!! compose validation failed for $f"; exit 1; }
+          done < <(find services -name 'compose*.yaml')
+          echo "All compose files validated OK"

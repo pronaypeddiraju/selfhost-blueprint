@@ -1,0 +1,17 @@
+services:
+  filebrowser:
+    # tag: v2.31.2 (pinned 2026-10-28)
+    image: filebrowser/filebrowser:v2.31.2@sha256:a4da9ca8364b0a1fc5dd36f7add92582bf673c0ae0bda8dd9bd13062c41d1715
+    container_name: ${DOCKER_PREFIX:-}filebrowser
+    restart: unless-stopped
+    # --root sets the browse root; /data/* subpaths below map to whatever host
+    # folders you want to expose. Add/remove volumes to taste. The DB file
+    # (users, prefs) lives next to the app data.
+    command: ["--root", "/data", "--database", "/database/filebrowser.db", "--address", "0.0.0.0", "--port", "80"]
+    ports:
+      - "${FILEBROWSER_HTTP_PORT:-8080}:80"
+    volumes:
+      - ${DATA_DIR}/filebrowser/db:/database
+      # Example: expose your data directories (read-only where you like).
+      - ${DATA_DIR}/media:/data/media:ro
+      - ${DATA_DIR}/silverbullet:/data/knowledge

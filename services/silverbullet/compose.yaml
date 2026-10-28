@@ -1,0 +1,16 @@
+services:
+  silverbullet:
+    # tag: latest (pinned 2026-10-28)
+    image: zefhemel/silverbullet:latest@sha256:370a3bf2daa37b7dbba62183085c57d5d43862189ea127e0765646d230561d9d
+    container_name: ${DOCKER_PREFIX:-}silverbullet
+    restart: unless-stopped
+    ports:
+      - "${SILVERBULLET_HTTP_PORT:-3000}:3000"
+    volumes:
+      - ${DATA_DIR}/silverbullet:/space
+    environment:
+      - SB_USER=${SILVERBULLET_USER:?set in .env}   # format: username:password (the ONLY web login)
+      - SB_SHELL_BACKEND=off
+      - SB_FOLDER=/space
+      - SB_PORT=3000
+      - SB_HOSTNAME=0.0.0.0

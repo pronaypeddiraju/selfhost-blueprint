@@ -1,0 +1,46 @@
+# Decluttarr config — sanitized starting point.
+# Full reference: https://github.com/manimatter/decluttarr
+# NOTE: the *arr apps run behind gluetun (network_mode: service:gluetun), so
+# from this container (a sibling on the same network) you address them via the
+# gluetun container name + forwarded port — NOT by their own name/IP.
+general:
+  check_interval_minutes: 5
+  check_before_delete: true
+  remove_unknown: true
+  search_on_remove_failure: false
+  started_after: 0
+
+job_defaults:
+  qbittorrent:
+    remove_stalled: true
+    remove_metadata_stuck: true
+    remove_failed: true
+    remove_orphaned: true
+    search_normal_fallback: false
+
+jobs:
+  - qbittorrent
+
+instances:
+  # Radarr + Sonarr. api_key is per-app (get it from each app's Settings).
+  - name: radarr
+    type: radarr
+    url: http://gluetun:7878
+    api_key: REPLACE_WITH_RADARR_API_KEY
+    delete_option: false
+    qbittorrent: qbit-1
+
+  - name: sonarr
+    type: sonarr
+    url: http://gluetun:8989
+    api_key: REPLACE_WITH_SONARR_API_KEY
+    delete_option: false
+    qbittorrent: qbit-1
+
+download_clients:
+  - name: qbit-1
+    type: qbittorrent
+    url: http://gluetun:8080
+    user: admin
+    password: REPLACE_WITH_QBIT_PASSWORD
+    max_downloads: 5

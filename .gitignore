@@ -1,0 +1,31 @@
+# Local runtime config — never commit real values
+.env
+
+# Your personal identifier denylist (see check-secrets.denylist.example).
+# This file holds the very strings it protects; it must never be committed.
+check-secrets.denylist
+
+# Secrets / keys / credentials
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.jks
+credentials*
+secrets*
+id_rsa
+id_ed25519
+
+# Logs and caches
+*.log
+*.tmp
+.cache/
+
+# Local scratch
+.scratch/
+dist/
+
+# Editor/OS
+.DS_Store
+*.swp

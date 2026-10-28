@@ -1,0 +1,130 @@
+# Media stack behind gluetun (VPN). Individual containers share gluetun's
+# network namespace, so they're addressed from each other as localhost:<port>
+# and from OUTSIDE as <host_ip>:<port>. Do not use the service name from a
+# container on a DIFFERENT network.
+x-gluetun-common: &gluetun
+  network_mode: service:gluetun
+  depends_on:
+    gluetun:
+      condition: service_healthy
+
+services:
+  gluetun:
+    # tag: latest (pinned 2026-10-28)
+    image: qmcgaw/gluetun:latest@sha256:c2ee4191762fca6b6a3c3359a731198a95d9c9af4db32d466e223bf3a84e779b
+    container_name: ${DOCKER_PREFIX:-}gluetun
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - ${DATA_DIR}/media/gluetun:/gluetun
+    environment:
+      - VPN_SERVICE_PROVIDER=${VPN_PROVIDER}
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY=${VPN_PRIVATE_KEY}
+      - WIREGUARD_ADDRESSES=${VPN_ADDRESS}
+      - SERVER_PUBLIC_KEY=${VPN_PUBLIC_KEY}
+      - TZ=${TZ:-UTC}
+    ports:
+      - "${QBIT_HTTP_PORT:-8080}:8080"
+      - "${RADARR_PORT:-7878}:7878"
+      - "${SONARR_PORT:-8989}:8989"
+      - "${PROWLARR_PORT:-9696}:9696"
+      - "${BAZARR_PORT:-6767}:6767"
+      - "${JELLYSEERR_PORT:-5055}:5055"
+      # qBittorrent listening port (from your VPN port-forward)
+      - "${VPN_PORT_FORWARDED}:6881/tcp"
+      - "${VPN_PORT_FORWARDED}:6881/udp"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  qbittorrent:
+    <<: *gluetun
+    # tag: latest (pinned 2026-10-28)
+    image: lscr.io/linuxserver/qbittorrent:latest@sha256:75ecbb1c89ab7b0a21c4bde40b4820e4f1649d2d56d83b91913422155e8d2a5f
+    container_name: ${DOCKER_PREFIX:-}qbittorrent
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-UTC}
+      - WEBUI_PORT=8080
+    volumes:
+      - ${DATA_DIR}/media/qbittorrent:/config
+      - ${DATA_DIR}/media/downloads:/downloads
+
+  radarr:
+    <<: *gluetun
+    # tag: latest (pinned 2026-10-28)
+    image: lscr.io/linuxserver/radarr:latest@sha256:084b3b2ab1d0ef930660727259546a241f2bdf67c9ed085d54bf1486a6887c9b
+    container_name: ${DOCKER_PREFIX:-}radarr
+    environment: [ "PUID=1000", "PGID=1000", "TZ=${TZ:-UTC}" ]
+    volumes:
+      - ${DATA_DIR}/media/radarr:/config
+      - ${DATA_DIR}/media/downloads:/downloads
+
+  sonarr:
+    <<: *gluetun
+    # tag: latest (pinned 2026-10-28)
+    image: lscr.io/linuxserver/sonarr:latest@sha256:48e36b608b461273b9dae857725cd0561a127f2c694b687318f6d0c5ce63e5c9
+    container_name: ${DOCKER_PREFIX:-}sonarr
+    environment: [ "PUID=1000", "PGID=1000", "TZ=${TZ:-UTC}" ]
+    volumes:
+      - ${DATA_DIR}/media/sonarr:/config
+      - ${DATA_DIR}/media/downloads:/downloads
+
+  prowlarr:
+    <<: *gluetun
+    # tag: latest (pinned 2026-10-28)
+    image: lscr.io/linuxserver/prowlarr:latest@sha256:04be30163fbaf48d6aeee7b5893c9f6614ffbad6d853971df0d6dcdf01c7f104
+    container_name: ${DOCKER_PREFIX:-}prowlarr
+    environment: [ "PUID=1000", "PGID=1000", "TZ=${TZ:-UTC}" ]
+    volumes:
+      - ${DATA_DIR}/media/prowlarr:/config
+
+  bazarr:
+    <<: *gluetun
+    # tag: latest (pinned 2026-10-28)
+    image: lscr.io/linuxserver/bazarr:latest@sha256:9a625883f054e722795affe5e3ca71057e6ed817ecdf99f4a99624346fcc509c
+    container_name: ${DOCKER_PREFIX:-}bazarr
+    environment: [ "PUID=1000", "PGID=1000", "TZ=${TZ:-UTC}" ]
+    volumes:
+      - ${DATA_DIR}/media/bazarr:/config
+      - ${DATA_DIR}/media/downloads:/downloads
+
+  flaresolverr:
+    <<: *gluetun
+    # tag: latest (pinned 2026-10-28)
+    image: ghcr.io/flaresolverr/flaresolverr:latest@sha256:c80ae007ce2ccdcd217a12426e4f039ef763ff90738c808d38810c3e59323767
+    container_name: ${DOCKER_PREFIX:-}flaresolverr
+    environment:
+      - LOG_LEVEL=info
+
+  jellyseerr:
+    # tag: latest (pinned 2026-10-28)
+    image: fallenbagel/jellyseerr:latest@sha256:91edd5620e51ed512ecdfd8b2e157c473faf385edf88c3764dc9ec32d310c0df
+    container_name: ${DOCKER_PREFIX:-}jellyseerr
+    restart: unless-stopped
+    ports:
+      - "${JELLYSEERR_PORT:-5055}:5055"
+    environment:
+      - TZ=${TZ:-UTC}
+      - LOG_LEVEL=info
+    volumes:
+      - ${DATA_DIR}/media/jellyseerr:/app/config
+
+  # Cleaning helper — monitors qBittorrent + Radarr/Sonarr, removes stalled/
+  # failed/orphaned downloads and re-searches. Standalone on the network, so it
+  # reaches the gluetun-backed apps at gluetun:<port> (see 06-media-stack.md).
+  decluttarr:
+    # tag: latest (pinned 2026-10-28)
+    image: ghcr.io/manimatter/decluttarr:latest@sha256:fd3dc206c17df32190cda1bed2ef3ee1cb9726bd108aa7e97e83e47cb3e72d78
+    container_name: ${DOCKER_PREFIX:-}decluttarr
+    restart: unless-stopped
+    volumes:
+      - ./config/decluttarr.yaml:/app/config/config.yaml:ro
+      - ${DATA_DIR}/media/decluttarr/logs:/app/logs

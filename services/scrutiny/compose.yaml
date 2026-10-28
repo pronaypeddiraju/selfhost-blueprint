@@ -1,0 +1,21 @@
+services:
+  scrutiny:
+    # Omnibus image = collector + web UI + InfluxDB in one container.
+    # tag: v0.8.1-omnibus (pinned 2026-10-28)
+    image: ghcr.io/analogj/scrutiny:v0.8.1-omnibus@sha256:66a65d1d7f2bf330a55e0bb073a3b2496a7b61dc6414c8c53550bc0c3f6885dd
+    container_name: ${DOCKER_PREFIX:-}scrutiny
+    restart: unless-stopped
+    ports:
+      - "${SCRUTINY_HTTP_PORT:-8081}:8080"
+    volumes:
+      - /run/udev:/run/udev:ro
+      # Raw block devices are needed to read SMART data. Narrow this to your
+      # actual disks once you know them (e.g. /dev/sda:/dev/sda).
+      - /dev:/dev:ro
+      - ${DATA_DIR}/scrutiny/config:/opt/scrutiny/config
+      - ${DATA_DIR}/scrutiny/influxdb:/opt/scrutiny/influxdb
+    cap_add:
+      - SYS_RAWIO
+    environment:
+      - COLLECTOR_API_ENDPOINT=http://localhost:8080
+      - TZ=${TZ:-UTC}
