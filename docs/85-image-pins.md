@@ -46,7 +46,7 @@ deliberately. That's the point, but it's your job.
 | media-stack | `lscr.io/linuxserver/bazarr` | latest |
 | media-stack | `ghcr.io/flaresolverr/flaresolverr` | latest |
 | media-stack | `ghcr.io/manimatter/decluttarr` | latest |
-| media-stack | `fallenbagel/jellyseerr` | latest |
+| media-stack | `ghcr.io/seerr-team/seerr` | latest |
 | mealie | `ghcr.io/mealie-recipes/mealie` | latest |
 | silverbullet | `zefhemel/silverbullet` | latest |
 | filebrowser | `filebrowser/filebrowser` | v2.31.2 |

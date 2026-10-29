@@ -33,7 +33,9 @@ services:
       - "${SONARR_PORT:-8989}:8989"
       - "${PROWLARR_PORT:-9696}:9696"
       - "${BAZARR_PORT:-6767}:6767"
-      - "${JELLYSEERR_PORT:-5055}:5055"
+      # NOTE: Seerr is deliberately NOT behind gluetun (it needs LAN access to
+      # Jellyfin/Emby/Plex), so 5055 is published by the seerr service below, not
+      # here — two mappings of the same host port cannot both bind.
       # qBittorrent listening port (from your VPN port-forward)
       - "${VPN_PORT_FORWARDED}:6881/tcp"
       - "${VPN_PORT_FORWARDED}:6881/udp"
@@ -104,18 +106,24 @@ services:
     environment:
       - LOG_LEVEL=info
 
-  jellyseerr:
-    # tag: latest (pinned 2026-10-28)
-    image: fallenbagel/jellyseerr:latest@sha256:91edd5620e51ed512ecdfd8b2e157c473faf385edf88c3764dc9ec32d310c0df
-    container_name: ${DOCKER_PREFIX:-}jellyseerr
+  seerr:
+    # tag: latest (pinned 2026-10-29) — unified successor to Jellyseerr + Overseerr
+    # (the two teams merged into Seerr in Feb 2026; both old images are archived).
+    # Auto-migrates an existing Jellyseerr/Overseerr config on first start.
+    image: ghcr.io/seerr-team/seerr:latest@sha256:d8fab675b55ad293ded98fd71efcfd46054cbad9746534ae1cc4794a88c0b3be
+    container_name: ${DOCKER_PREFIX:-}seerr
+    # Required: the Seerr image ships no init process of its own.
+    init: true
     restart: unless-stopped
     ports:
-      - "${JELLYSEERR_PORT:-5055}:5055"
+      - "${SEERR_PORT:-5055}:5055"
     environment:
       - TZ=${TZ:-UTC}
       - LOG_LEVEL=info
     volumes:
-      - ${DATA_DIR}/media/jellyseerr:/app/config
+      # Runs as the non-root `node` user (UID 1000), no PUID/PGID support:
+      # chown -R 1000:1000 this directory or first start cannot write its DB.
+      - ${DATA_DIR}/media/seerr:/app/config
 
   # Cleaning helper — monitors qBittorrent + Radarr/Sonarr, removes stalled/
   # failed/orphaned downloads and re-searches. Standalone on the network, so it

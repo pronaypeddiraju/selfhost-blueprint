@@ -3,6 +3,29 @@
 All notable changes to this blueprint. Versions are git tags; this file is the human
 summary.
 
+## v1.0.2 — Seerr replaces the deprecated Jellyseerr
+
+### Changed
+- **Media request portal is now [Seerr](https://docs.seerr.dev)** — the Feb 2026 merger
+  of Jellyseerr and Overseerr. Both old images (`fallenbagel/jellyseerr`, `sct/overseerr`)
+  are archived upstream and no longer receive fixes. The compose module moved from
+  `jellyseerr` to `seerr` (`ghcr.io/seerr-team/seerr`, digest-pinned like the rest), and
+  `JELLYSEERR_PORT` is now **`SEERR_PORT`**.
+- `seerr` now sets the **required `init: true`** and its install step chowns the config
+  dir to **UID 1000** — Seerr runs as the non-root `node` user and does not support
+  `PUID`/`PGID`, so a root-owned config dir fails to start.
+- `docs/06-media-stack.md` documents the migration path (Seerr auto-migrates an existing
+  Jellyseerr/Overseerr config on first start; copy the old dir, don't move it).
+
+### Fixed
+- The **`gluetun` service published `5055` a second time**, duplicating the request
+  portal's own mapping. `docker compose up` could not bind it — the media stack now
+  publishes 5055 exactly once, from the `seerr` service.
+
+### Not included, by decision
+Portainer · Honcho · open-webui · Fab claimer · IPTV/Dispatcharr · any app-store UI ·
+any finance tooling. **`fallenbagel/jellyseerr`** — replaced by `seerr` (see above).
+
 ## v1.0.1 — screenshots + port-collision fixes
 
 ### Added

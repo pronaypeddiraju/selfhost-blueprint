@@ -70,9 +70,11 @@ Ports are defaults — all are overridable in `.env`.
 - **Skip if** you don't have a media library yet. You can add it later.
 
 ### `media-stack` — VPN + download automation
-- **RAM** ~2 GB total · **Ports** 8080 (qBittorrent), 7878/8989/9696/6767, 5055 (Jellyseerr)
+- **RAM** ~2 GB total · **Ports** 8080 (qBittorrent), 7878/8989/9696/6767, 5055 (Seerr)
 - **Does:** gluetun (WireGuard VPN) + qBittorrent + Prowlarr/Radarr/Sonarr/Bazarr +
-  FlareSolverr + Decluttarr + Jellyseerr, all egressing through the VPN.
+  FlareSolverr + Decluttarr, all egressing through the VPN, plus **Seerr** (request
+  portal, formerly Jellyseerr) which runs *outside* the VPN because it talks to the
+  media server on the LAN.
 - **Needs:** a VPN subscription with WireGuard config, indexer accounts.
 - **Read [06 — Media stack](06-media-stack.md) before installing** — the
   `network_mode: service:gluetun` pattern is the #1 source of "why can't I reach

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # install.sh — Media stack: gluetun (VPN) + qBittorrent + Radarr/Sonarr/Prowlarr/
-# Bazarr/Flaresolverr + optional Jellyseerr + decluttarr.
+# Bazarr/Flaresolverr + Seerr (formerly Jellyseerr) + decluttarr.
 # All downloaders/providers share gluetun's network namespace for a single VPN IP.
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -10,9 +10,12 @@ load_env; require_docker; ensure_storage
 require_var VPN_PROVIDER
 require_var VPN_PRIVATE_KEY
 
-for sub in qbittorrent radarr sonarr prowlarr bazarr flaresolverr jellyseerr decluttarr; do
+for sub in qbittorrent radarr sonarr prowlarr bazarr flaresolverr seerr decluttarr; do
   provision_storage "media/$sub" >/dev/null
 done
+
+# Seerr runs as the non-root `node` user (UID 1000) and has no PUID/PGID support.
+chown -R 1000:1000 "$DATA_DIR/media/seerr" 2>/dev/null || true
 
 # Render decluttarr config from the sanitized template.
 mkdir -p "$SCRIPT_DIR/services/media-stack/config" "$DATA_DIR/media/decluttarr/logs"
@@ -27,4 +30,4 @@ echo "  Radarr       -> http://<host>:${RADARR_PORT:-7878}"
 echo "  Sonarr       -> http://<host>:${SONARR_PORT:-8989}"
 echo "  Prowlarr     -> http://<host>:${PROWLARR_PORT:-9696}"
 echo "  Bazarr       -> http://<host>:${BAZARR_PORT:-6767}"
-echo "  Jellyseerr   -> http://<host>:${JELLYSEERR_PORT:-5055}"
+echo "  Seerr        -> http://<host>:${SEERR_PORT:-5055}"

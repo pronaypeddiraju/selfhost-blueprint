@@ -41,7 +41,7 @@ jellyfin:jellyfin:JELLYFIN_HTTP_PORT:8096
 mealie:mealie:MEALIE_HTTP_PORT:9925
 silverbullet:silverbullet:SILVERBULLET_HTTP_PORT:3030
 filebrowser:filebrowser:FILEBROWSER_HTTP_PORT:8082
-jellyseerr:jellyseerr:JELLYSEERR_PORT:5055
+seerr:seerr:SEERR_PORT:5055
 qbittorrent:qbittorrent:QBIT_HTTP_PORT:8080
 radarr:radarr:RADARR_PORT:7878
 sonarr:sonarr:SONARR_PORT:8989
