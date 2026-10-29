@@ -2,6 +2,12 @@
 
 **Stand up a self-hosted stack on a spare machine — in about 20 minutes.**
 
+![license](https://img.shields.io/badge/license-MIT-blue)
+![docker](https://img.shields.io/badge/runs%20on-Docker-2496ED?logo=docker&logoColor=white)
+![modules](https://img.shields.io/badge/modules-14-informational)
+![tested](https://img.shields.io/badge/tested%20on-Debian%2013-A81D33?logo=debian&logoColor=white)
+![telemetry](https://img.shields.io/badge/telemetry-none-success)
+
 Modular blueprints for a real, working home server: DNS + ad-blocking, TLS, passwords,
 photo backup, media, monitoring, backups and a dashboard. Pick the pieces you want; every
 piece is a self-contained module with an install script, a compose file, and a doc that
@@ -10,6 +16,25 @@ explains the *why*.
 Built from a real two-node homelab, then **fully anonymized** — there are no real
 domains, IPs, hostnames, account names or credentials anywhere in this repo. Every value
 is a placeholder you fill in, in one `.env` file, which is git-ignored.
+
+![Architecture: one machine, everything in Docker](docs/images/architecture.svg)
+
+---
+
+## What it looks like
+
+One dashboard for everything, real HTTPS hostnames, and services that are actually wired
+together rather than a folder of compose files.
+
+![Homepage dashboard](docs/images/homepage.webp)
+
+| AdGuard Home — DNS & ad-blocking | Immich — photo backup |
+|---|---|
+| ![AdGuard Home](docs/images/adguard.webp) | ![Immich](docs/images/immich.webp) |
+
+> Screenshots are from a throwaway install of this repo with **demo data** (placeholder
+> photos, a real public blocklist, a freshly-generated admin account). Your install looks
+> the same — minus the demo content, which is yours to fill in.
 
 ---
 

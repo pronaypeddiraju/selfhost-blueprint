@@ -29,8 +29,9 @@ Raspberry Pi 4 for `minimal` (arm64 images are used by every Tier 1 module).
 admin page on this machine, another proxy — either stop it or set `CADDY_HTTP_PORT` /
 `CADDY_HTTPS_PORT` and use those instead.
 
-Also avoid: `3000` (SilverBullet), `3001` (Uptime Kuma), `3002` (Homepage), `8000`
-(Vaultwarden), `8080` (FileBrowser/qBittorrent), `8081` (Scrutiny), `8096` (Jellyfin),
+Also avoid: `3000` (AdGuard), `3001` (Uptime Kuma), `3002` (Homepage), `3030`
+(SilverBullet), `8000` (Vaultwarden), `8080` (qBittorrent), `8081` (Scrutiny), `8082`
+(FileBrowser), `8096` (Jellyfin),
 `9925` (Mealie), `2283` (Immich), and the *arr ports `7878/8989/9696/6767/5055`.
 
 All of these are overridable in `.env` — see [20 — Service catalog](20-service-catalog.md).

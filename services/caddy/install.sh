@@ -39,8 +39,8 @@ scrutiny:scrutiny:SCRUTINY_HTTP_PORT:8081
 immich:immich_server:IMMICH_HTTP_PORT:2283
 jellyfin:jellyfin:JELLYFIN_HTTP_PORT:8096
 mealie:mealie:MEALIE_HTTP_PORT:9925
-silverbullet:silverbullet:SILVERBULLET_HTTP_PORT:3000
-filebrowser:filebrowser:FILEBROWSER_HTTP_PORT:8080
+silverbullet:silverbullet:SILVERBULLET_HTTP_PORT:3030
+filebrowser:filebrowser:FILEBROWSER_HTTP_PORT:8082
 jellyseerr:jellyseerr:JELLYSEERR_PORT:5055
 qbittorrent:qbittorrent:QBIT_HTTP_PORT:8080
 radarr:radarr:RADARR_PORT:7878

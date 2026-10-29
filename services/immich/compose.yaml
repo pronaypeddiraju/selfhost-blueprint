@@ -17,7 +17,7 @@ services:
       - DB_DATABASE_NAME=immich
       - REDIS_HOSTNAME=redis
     ports:
-      - "${IMMICH_HTTP_PORT:-2283}:3001"
+      - "${IMMICH_HTTP_PORT:-2283}:2283"
     depends_on:
       - redis
       - database
